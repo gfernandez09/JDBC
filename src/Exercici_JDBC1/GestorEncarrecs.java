@@ -5,6 +5,7 @@ Description:
 */
 import java.io.*;
 import java.sql.Connection;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -79,7 +80,7 @@ public class GestorEncarrecs {
     private void mostrarDades(String dades) throws IOException {
         System.out.print(dades);
     }
-    //Cercar un element d'acord al seu nom
+    //Cercar un client d'acord al seu nom
     private void cercarClient() throws Exception {
         String nom = entrarDades("Introdueix el nom del client: ");
         if (null == nom) return;
@@ -103,7 +104,7 @@ public class GestorEncarrecs {
         gestor.afegirClient(new Client(id,nom,apostal,aelectronica,telefon));
         mostrarDades("Operació completada satisfactòriament.\n");
     }
-
+    /*Llistar tots els productes disponibles*/
     private void llistarProductes() throws Exception {
         List<Producte> llista = gestor.llistarProductes();
         Iterator it = llista.iterator();
@@ -114,6 +115,7 @@ public class GestorEncarrecs {
             mostrarDades(c.toString() + "\n");
         }
     }
+    /*Cercar encarrec a partir del seu ID*/
     private void cercarEncarrec() throws Exception {
         int ID=Integer.parseInt(entrarDades("Introdueix l'identificador del client per trobar l'encarrec: "));
         if (0==ID) return;
@@ -126,21 +128,25 @@ public class GestorEncarrecs {
             mostrarDades(e.toString()+"\n");
         }
     }
+    /*Afegir un Encarrec y també, afegir els productes del encarrec a la taula EncarrecProducte*/
     public void afegirEncarrec() throws Exception{
         mostrarDades("Introdueix dades del nou encarrec (deixa en blac per sortir.)\n");
         int ID = gestor.obtenirNouIDEncarrec();
         //Le damos formato para poder introducir bien la fehca en la base de datos.
-        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Date fecha =format.parse(entrarDades("Fecha: ")); if (null==fecha) return;
         int IDCliente =Integer.parseInt(entrarDades("Introdueix el identificador del client: ")); if (0 == IDCliente) return;
         gestor.afegirEncarrec(new Encarrec(ID,gestor.conversor(fecha),IDCliente));
         afegirEncarrecProducte(ID);
         mostrarDades("Operació completada satisfactoriament.\n");
     }
+    /*Borrar Encarrec segon el seu ID*/
     public void borrarEncarrec() throws Exception {
         int ID=Integer.parseInt(entrarDades("Introdueix l'identificador de l'encarrec: ")); if (0==ID) return;
+        gestor.borrarEncarrecProducte(ID);
         gestor.borrarEncarrec(ID);
     }
+    /*Afegir un nou producte*/
     public void afegirProducte() throws Exception{
         mostrarDades("Introdueix les seguents dades del nou client (deixa en blanc per sortir).\n");
         int ID = gestor.obtenirNouIDProducte();
@@ -150,7 +156,7 @@ public class GestorEncarrecs {
         gestor.afegirProducte(new Producte(ID,Nombre,Precio,Stock));
         mostrarDades("Operació completada satisfactoriament.\n");
     }
-
+    /*Mètode per afegir el Encarrec Producte*/
     public void afegirEncarrecProducte(int IDEncarrec) throws Exception {
         int NumProductes = Integer.parseInt(entrarDades("Numero de productes per aficar dins l'encàrrec: ")); if (0==NumProductes) return;
         for (int i = 0; i < NumProductes ; i++) {
@@ -159,7 +165,7 @@ public class GestorEncarrecs {
             gestor.afegirEncProd(IDEncarrec,Nombre,numQuant);
         }
     }
-
+    /*Mètode per abastir un producte*/
     public void reabastecerProducto()throws Exception{
         String nom = entrarDades("Nom del producte: "); if (null == nom) return;
         int numQuant=Integer.parseInt(entrarDades("Quantitat a abastir del producte: ")); if (0==numQuant) return;

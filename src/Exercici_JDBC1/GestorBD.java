@@ -41,6 +41,7 @@ public class GestorBD {
         if(oNP.next()) return (1 + oNP.getInt(1));
         else return 1;
     }
+    /*Cercar un client a partir del seu nom*/
     public List<Client> cercarClient(String nom) throws Exception{
         Statement cerca = conn.createStatement();
         ResultSet Cc = cerca.executeQuery("SELECT * FROM CLIENTS WHERE NOM='" + nom + "'");
@@ -50,12 +51,13 @@ public class GestorBD {
         }
         return llista;
     }
-
+    //Afegir un nou client
     public void afegirClient(Client aC) throws Exception{
         Statement update = conn.createStatement();
         String valors = aC.getId()+", '"+aC.getNom()+"','"+aC.getApostal()+"','"+aC.getAelectronica()+"','"+aC.getTelefon()+"'";
         update.executeUpdate("INSERT INTO CLIENTS VALUES (" + valors + ")");
     }
+    /*Mètode per cercar un Encarrec a partir del seu ID*/
     public List<Encarrec> cercarEncarrec(int ID) throws Exception{
         Statement cerca= conn.createStatement();
         ResultSet r = cerca.executeQuery("SELECT * FROM ENCARRECS WHERE IDCLIENT='"+ID+"'");
@@ -65,6 +67,7 @@ public class GestorBD {
         }
         return llista;
     }
+    /*Mètode per llistar tots els productes*/
     public List<Producte> llistarProductes() throws Exception{
         Statement cerca = conn.createStatement();
         ResultSet lP = cerca.executeQuery("SELECT * FROM PRODUCTES");
@@ -74,31 +77,41 @@ public class GestorBD {
         }
         return llista;
     }
-
+    /*Mètode per abastir un producte al qual l'hi incrementarem el stock*/
     public void reabastecerProducto(String nom,int numQuant) throws SQLException {
         Statement update = conn.createStatement();
         update.execute("UPDATE PRODUCTES SET STOCK=STOCK+" + numQuant + " WHERE NOM='" + nom + "'" );
     }
+    /*Mètode per afegir un Encarrec*/
     public void afegirEncarrec(Encarrec aE) throws Exception{
         Statement update = conn.createStatement();
         String valors = aE.getID()+", '"+aE.getFecha()+"','"+aE.getIdCliente()+"'";
         update.executeUpdate("INSERT INTO ENCARRECS VALUES (" + valors + ")");
     }
+    /*Mètode per borrar un Encarrec a partir del seu ID*/
     public void borrarEncarrec(int ID) throws Exception{
         Statement update = conn.createStatement();
         update.executeUpdate("DELETE FROM ENCARRECS WHERE ID ='" + ID + "'");
     }
-
+    public void borrarEncarrecProducte(int ID) throws Exception{
+        Statement update = conn.createStatement();
+        update.executeUpdate("DELETE FROM ENCARRECSPRODUCTES WHERE IDENCARREC ='" + ID + "'");
+    }
+    /*Mètode per afegir un Producte*/
     public void afegirProducte(Producte aP) throws Exception{
         Statement update = conn.createStatement();
         String valors = aP.getID()+", '"+aP.getNombre()+"','"+aP.getPrecio()+"','"+aP.getStock()+"'";
         update.executeUpdate("INSERT INTO PRODUCTES VALUES (" + valors + ")");
     }
-
+    /*Mètode que realizta l'update del stock dels productes emprats al afegir el Encarrec*/
     public void updateProducteEncarrec(int producto, int numQuant) throws SQLException {
         Statement update = conn.createStatement();
         update.execute("UPDATE PRODUCTES SET STOCK=STOCK-" + numQuant + " WHERE ID='" + producto + "'" );
     }
+    /*Mètode per fer l'insert a la taula ENCARRECS PRODUCTES
+    * També utilitzaré un altre mètode anomenat devolverIDProducto per fer el retorn del ID del Producte.
+    * Després, a cada producte emprat l'hi actualitzarem a la taula productes la quantitat que vol el client,
+    * */
     public void afegirEncProd(int idEncarrec, String producte, int quantitat) throws Exception{
         int idProducte=devolverIDProducto(producte);
         Statement update= conn.createStatement();
@@ -106,7 +119,7 @@ public class GestorBD {
         update.executeUpdate("INSERT INTO ENCARRECSPRODUCTES VALUE("+valors+")");
         updateProducteEncarrec(idProducte,quantitat);
     }
-
+    /*Mètode que retorna l'id del Producte com a int per desprès poder fer l'insert a la taula Encarrecs Productes, segons el nom del Producte*/
     public int devolverIDProducto(String Nombre) throws SQLException{
         int idProducte = 0;
         Statement cerca = conn.createStatement();
@@ -116,8 +129,7 @@ public class GestorBD {
         }
         return idProducte;
     }
-
-    //Convertir el tipo Date para ser usado en el mySQL
+    /*Mètode per convertir el java.util.Date per ser usat amb mySQL*/
     public Timestamp conversor(java.util.Date fecha){
         Timestamp fechaSQL=new Timestamp(fecha.getTime());
         return fechaSQL;

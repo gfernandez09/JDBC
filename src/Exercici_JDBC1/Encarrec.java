@@ -3,7 +3,6 @@ Created by: Gusito
 Date: 17/03/2021
 Description: 
 */
-
 import java.util.Date;
 
 public class Encarrec {
